@@ -38,7 +38,6 @@ gradoIntensidad(intenso,3).
 estacion(verano,60).
 estacion(otono,90).
 estacion(primavera,90).
-estacion(primavera,90).
 estacion(invierno,120).
 
 
@@ -54,27 +53,20 @@ instalada(si).
 
 %********************CLAUSULAS DE HORN***+************************
 
-%Entradas: N: Cantidad de veces que se deben sumar los ingredientes.
-%		   X: Ingrediente que será sumado.	
-%          R: Donde se almacena el resultado.
-%La claúsula entrega la proporción de ingredientes que serán usados según el valor N ingresado		
-suma(0,_ ,0).
-suma(N,X,R):- Nant is N-1,
-			suma(Nant,X,Rnuevo),
-			R is (Rnuevo + X).
+
 
 %Entradas: N: Cantidad de veces que se deben sumar los ingredientes.
-		   X,Y,Z,W: Valor asignado a cada ingrediente.
-		   Xs,Ys,Zs,Ws: Variable en donde serán almacenados los ingredientes. 
+%		   X,Y,Z,W: Valor asignado a cada ingrediente.
+%		   Xs,Ys,Zs,Ws: Variable en donde serán almacenados los ingredientes. 
 %Cantidad retorna la proporción de cada
-cantidad(N,X,Xs,Y,Ys,Z,Zs,W,Ws):- suma(N,X,Xs),
-								  suma(N,Y,Ys),
-								  suma(N,Z,Zs),
-								  suma(N,W,Ws).
+cantidad(N,X,Xs,Y,Ys,Z,Zs,W,Ws):- Xs is X*N,
+								  Ys is Y*N,
+								  Zs is Z*N,
+								  Ws is W*N.
 
 %Entradas: CafeI,AguaI,LecheI,ChocolateI : Contienen la cantidad ingresada por el usuario para cada ingrediente.
-		   CafeNecesario,AguaNecesaria,LecheNecesaria,ChocolateNecesario: Contiene la cantidad real que se necesita para realizar cada taza.
-		   R: Variable en donde son almacenadas la cantidad de tazas que se pueden hacer.
+%		   CafeNecesario,AguaNecesaria,LecheNecesaria,ChocolateNecesario: Contiene la cantidad real que se necesita para realizar cada taza.
+%		   R: Variable en donde son almacenadas la cantidad de tazas que se pueden hacer.
 %La salida es la cantidad de tazas que es posible realizar según los ingredientes ingresados por el usuario y lo que necesitan para cada una de las tazas.
 capacidad(CafeI,CafeNecesario,AguaI,AguaNecesaria,LecheI,LecheNecesaria,ChocolateI,ChocolateNecesario,R):- 
 		CafeI>= CafeNecesario,
@@ -94,8 +86,8 @@ capacidad(_,_,_,_,_,_,_,_,0).
 
 
 %Entradas: Duracion: Corresponde a la cantidad de minutos que demora una taza en específico en ser preparada.
-		   CantidadTazas: Corresponde a la cantidad de tazas que serán preparadas.
-		   Minutos: Variable en donde se almacenan los minutos totales.
+%		   CantidadTazas: Corresponde a la cantidad de tazas que serán preparadas.
+%		   Minutos: Variable en donde se almacenan los minutos totales.
 %Retorna el tiempo total en minutos que demorará la preparación de todas las tazas ingresadas.
 minutos(_,0,0).
 minutos(Duracion,CantidadTazas,Minutos):- CantidadTazas >0,
@@ -112,7 +104,7 @@ prepararCafe(TamanoTaza,TipoPreparacion,TipoCafe,EstacionAno,Salida):- tiposPrep
 																	   tipoCafe(TipoCafe,Intensidad,_),
 																	   cantidad(Valor,X,Xs,Y,Ys,Z,Zs,W,Ws),
 																	   estacion(EstacionAno,Tiempo),
-																	   atomic_list_concat([Xs,",",Ys,",",Zs,",",Ws,",",Intensidad,",",Tiempo],Salida).
+																	   atomic_list_concat([Xs,",",Zs,",",Ys,",",Ws,",",Intensidad,",",Tiempo],Salida).
 
 %Indica si una cafetera puede ser utilizada en base a si las cantidades de agua, café y leche que esta posee
 % además de si se encuentra o no instalada. Las cantidades deben ser: Agua mayor a 150 y café y leche mayor a 30.
@@ -123,7 +115,7 @@ sePuedeUsar(Instalada,CantidadAgua,CantidadCafe,CantidadLeche):- instalada(Insta
 
 
 %Entrega la cantidad total de tazas que pueden ser realizadas según las proporciones de los ingredientes ingresados y el tiempo que demora 
-cantidadTazas(TamanoTaza,TipoPreparacion,_,EstacionAno,CantidadCafe,CantidadAgua,CantidadLeche,CantidadChocolate,Salida):-
+cantidadTazas(TamanoTaza,TipoPreparacion,_,EstacionAno,CantidadCafe,CantidadLeche,CantidadAgua,CantidadChocolate,Salida):-
 		tiposPreparacion(TipoPreparacion,Cafe,Agua,Leche,Chocolate),
 		tamano(TamanoTaza,Valor),
 		cantidad(Valor,Cafe,CafeTotal,Agua,AguaTotal,Leche,LecheTotal,Chocolate,ChocolateTotal),
