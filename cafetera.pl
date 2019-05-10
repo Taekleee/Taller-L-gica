@@ -128,7 +128,9 @@ cantidadTazas(TamanoTaza,TipoPreparacion,_,EstacionAno,CantidadCafe,CantidadLech
 %Intensidad entrega -1 si las proporciones de leche o de chocolate son mayores a las de café.
 intensidad(Cafe,Leche,Chocolate,-1):- (Cafe < Leche);
 									  (Cafe < Chocolate).
-
+%Si la leche y el chocolate son menores al café (caso contrario del anterior), se retorna 0 para que la intensidad se conserve.
+intensidad(Cafe,Leche,Chocolate,0):- (Cafe > Leche),
+									 (Cafe > Chocolate).
 
 %IntensidadCafe entrega la intensidad que tiene cada café, dependiendo del tipo de preparación y el tipo de café.
 %La intensidad no puede ser menor a suave. Si las proporciones de la leche o chocolate son mayores a las de café
