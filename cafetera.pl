@@ -13,7 +13,7 @@
 
 
 
-%Indica la proporción de los ingredientes de cada una de las preparaciones: Cafe - Agua - Leche - Chocolate -
+%Indica la proporción de los ingredientes de cada una de las preparaciones en el orden: Cafe - Agua - Leche - Chocolate -
 tiposPreparacion(espresso,7,30,0,0).
 tiposPreparacion(americano,7,60,0,0).
 tiposPreparacion(cortado,7,50,3,0).
@@ -21,7 +21,7 @@ tiposPreparacion(cappuccino,7,150,19,0).
 tiposPreparacion(latte,7,90,9,0).
 tiposPreparacion(mokaccino,7,100,9,3).
 
-%Indica los tipos de café y su intensidad respectiva.
+%Indica los tipos de café. A cada uno le fue asignado un valor para medir su intensidad.
 tipoCafe(arabica,suave,1).
 tipoCafe(robusta,intenso,3).
 tipoCafe(combinado,medio,2).
@@ -34,7 +34,7 @@ gradoIntensidad(intenso,3).
 
 
 %Indica el tiempo de prepación de los cafés dependiendo de la época del año en que se encuentra,
-%debido a que la temperatura ambiente varía.
+%debido a que la temperatura ambiente varía. (En minutos)
 estacion(verano,60).
 estacion(otono,90).
 estacion(primavera,90).
@@ -55,14 +55,19 @@ instalada(si).
 
 
 
-%Entradas: N: Cantidad de veces que se deben sumar los ingredientes.
+%Entradas: N: Cantidad por la cual se deben multiplicar los ingredientes.
 %		   X,Y,Z,W: Valor asignado a cada ingrediente.
 %		   Xs,Ys,Zs,Ws: Variable en donde serán almacenados los ingredientes. 
-%Cantidad retorna la proporción de cada
+%Cantidad retorna la proporción de cada ingrediente, según el tamaño de la taza.
 cantidad(N,X,Xs,Y,Ys,Z,Zs,W,Ws):- Xs is X*N,
 								  Ys is Y*N,
 								  Zs is Z*N,
 								  Ws is W*N.
+
+
+
+%*********************************************************************************************************************************************
+
 
 %Entradas: CafeI,AguaI,LecheI,ChocolateI : Contienen la cantidad ingresada por el usuario para cada ingrediente.
 %		   CafeNecesario,AguaNecesaria,LecheNecesaria,ChocolateNecesario: Contiene la cantidad real que se necesita para realizar cada taza.
@@ -83,7 +88,7 @@ capacidad(_,_,_,_,_,_,_,_,0).
 
 
 
-
+%*********************************************************************************************************************************************
 
 %Entradas: Duracion: Corresponde a la cantidad de minutos que demora una taza en específico en ser preparada.
 %		   CantidadTazas: Corresponde a la cantidad de tazas que serán preparadas.
@@ -95,10 +100,9 @@ minutos(Duracion,CantidadTazas,Minutos):- CantidadTazas >0,
 										  minutos(Duracion,CantidadTazasNuevo,MinutosNuevo),
 										  Minutos is (MinutosNuevo + Duracion).
 				
+%*********************************************************************************************************************************************
 
-
-% El predicado retorna la proporción que es necesaria de cada ingrediente según el tipo de preparación, la intensidad y el tiempo que demora su preparación
-% tipo de café y la estación del año  el tamaño de la taza.
+% El predicado retorna la proporción que es necesaria de cada ingrediente, la intensidad y el tiempo de preparación según el tipo de preparación, tipo de café, el tamaño de la taza y la estación del año.
 prepararCafe(TamanoTaza,TipoPreparacion,TipoCafe,EstacionAno,Salida):- tiposPreparacion(TipoPreparacion,X,Y,Z,W),
 																	   tamano(TamanoTaza,Valor),
 																	   tipoCafe(TipoCafe,Intensidad,_),
@@ -106,13 +110,16 @@ prepararCafe(TamanoTaza,TipoPreparacion,TipoCafe,EstacionAno,Salida):- tiposPrep
 																	   estacion(EstacionAno,Tiempo),
 																	   atomic_list_concat([Xs,",",Zs,",",Ys,",",Ws,",",Intensidad,",",Tiempo],Salida).
 
+%*********************************************************************************************************************************************
+
 %Indica si una cafetera puede ser utilizada en base a si las cantidades de agua, café y leche que esta posee
-% además de si se encuentra o no instalada. Las cantidades deben ser: Agua mayor a 150 y café y leche mayor a 30.
+% además de si se encuentra o no instalada. Las cantidades deben ser: Agua mayor o igual a 150 y café y leche mayor o igual a 30.
 sePuedeUsar(Instalada,CantidadAgua,CantidadCafe,CantidadLeche):- instalada(Instalada),
 																 CantidadAgua >= 150,
 																 CantidadCafe >=30,
 																 CantidadLeche>=30.
 
+%*********************************************************************************************************************************************
 
 %Entrega la cantidad total de tazas que pueden ser realizadas según las proporciones de los ingredientes ingresados y el tiempo que demora 
 cantidadTazas(TamanoTaza,TipoPreparacion,_,EstacionAno,CantidadCafe,CantidadLeche,CantidadAgua,CantidadChocolate,Salida):-
@@ -124,26 +131,27 @@ cantidadTazas(TamanoTaza,TipoPreparacion,_,EstacionAno,CantidadCafe,CantidadLech
 		minutos(Tiempo,Tazas,Minutos),
 		atomic_list_concat([Tazas,",",Minutos],Salida). 
 
+%*********************************************************************************************************************************************
 
-%Intensidad entrega -1 si las proporciones de leche o de chocolate son mayores a las de café.
-intensidad(Cafe,Leche,Chocolate,-1):- (Cafe < Leche);
-									  (Cafe < Chocolate).
+%Intensidad entrega -1 si las proporciones de leche + chocolate son mayores a las de café.
+intensidad(Cafe,Leche,Chocolate,-1):- (Cafe < Leche + Chocolate).
+									  
 %Si la leche y el chocolate son menores al café (caso contrario del anterior), se retorna 0 para que la intensidad se conserve.
-intensidad(Cafe,Leche,Chocolate,0):- (Cafe > Leche),
-									 (Cafe > Chocolate).
+intensidad(Cafe,Leche,Chocolate,0):- (Cafe > Leche + Chocolate).
+
+%*********************************************************************************************************************************************
 
 %IntensidadCafe entrega la intensidad que tiene cada café, dependiendo del tipo de preparación y el tipo de café.
-%La intensidad no puede ser menor a suave. Si las proporciones de la leche o chocolate son mayores a las de café
-%la intensidad se disminuye en un grado.
-intensidadCafe(_,TipoPreparacion,Salida):- tiposPreparacion(TipoPreparacion,Cafe,_,Leche,Chocolate),
-												  intensidad(Cafe,Leche,Chocolate,X),
-												  X =:= 1,
-												  gradoIntensidad(Salida,X).
-
+%La intensidad no puede ser menor a suave. Si las proporciones de la leche + chocolate son mayores a las de café
+%la intensidad se disminuye en un grado, en caso contrario se mantienen. En este caso, no se considera la cantidad 
+%de agua ya que son parámetros establecidos para cada tipo de café y que no serán modificados.
+intensidadCafe(TipoCafe,_,Salida):- tipoCafe(TipoCafe,Salida,Y),
+												  Y =:= 1.
 
 intensidadCafe(TipoCafe, TipoPreparacion, Salida):- tiposPreparacion(TipoPreparacion,Cafe,_,Leche,Chocolate),
 													 intensidad(Cafe,Leche,Chocolate,X),
 													 tipoCafe(TipoCafe,_,Y),
+													 Y =\= 1,
 													 Z is Y + X,
 													 gradoIntensidad(Salida,Z).
 
