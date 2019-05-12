@@ -17,7 +17,7 @@
 tiposPreparacion(espresso,7,30,0,0).
 tiposPreparacion(americano,7,60,0,0).
 tiposPreparacion(cortado,7,50,3,0).
-tiposPreparacion(cappuccino,7,150,19,0).
+tiposPreparacion(capuccino,7,150,19,0).
 tiposPreparacion(latte,7,90,9,0).
 tiposPreparacion(mokaccino,7,100,9,3).
 
